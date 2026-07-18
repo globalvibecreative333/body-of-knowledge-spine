@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Knowledge Expression — Your expertise, mapped</title>
+  <meta name="description" content="Decades of hard-won knowledge, pulled out of your head and handed back as an interactive map you can see, use and build on. The Spine — $1,997." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      /* palette pulled from the demo mindmap */
+      --paper: #FDE6D6;        /* page background */
+      --paper-light: #FEF2E8;  /* card / panel */
+      --paper-deep: #F2C9AC;   /* warm shade */
+      --ink: #281B0A;          /* body text */
+      --ink-soft: #4a3620;     /* soft body text */
+      --muted: #A67557;        /* muted labels */
+      --rule: #E5B085;         /* borders / rules */
+      --accent: #E58628;       /* primary accent */
+      --accent-deep: #C9562E;  /* hover / deep */
+      --deep: #8E2509;         /* headings / dividers */
+      --bright: #F78001;       /* sparing highlight */
+      --dark: #232712;         /* darkest block */
+      --dark-soft: #D8A57E;    /* on-dark muted */
+
+      --grain: url("data:image/svg+xml;utf8,<svg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.1 0 0 0 0 0.08 0 0 0 0.30 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+
+      --display: "Fraunces", Georgia, "Times New Roman", serif;
+      --mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+
+      --max: 1180px;
+      --gutter: clamp(1.25rem, 4vw, 3rem);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--display);
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.6;
+      font-variation-settings: "opsz" 18, "SOFT" 40, "WONK" 0;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image: var(--grain);
+      background-size: 240px 240px;
+      opacity: 0.40;
+      pointer-events: none;
+      mix-blend-mode: multiply;
+      z-index: 100;
+    }
+
+    ::selection { background: var(--accent); color: var(--paper-light); }
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 0 var(--gutter);
+      position: relative;
+    }
+
+    /* ---------- top bar ---------- */
+    .topbar { position: relative; z-index: 5; padding: 1.75rem 0 0; }
+    .topbar-row {
+      display: flex; justify-content: space-between; align-items: baseline; gap: 1rem;
+    }
+    .mark {
+      font-family: var(--display);
+      font-weight: 500; font-style: italic;
+      font-size: 1.25rem; letter-spacing: -0.01em;
+      display: inline-flex; align-items: baseline; gap: 0.4rem;
+      color: var(--deep);
+    }
+    .mark::before {
+      content: "❋"; color: var(--accent); font-style: normal;
+      font-size: 0.9rem; transform: translateY(-2px);
+    }
+    .meta {
+      font-family: var(--mono); font-size: 0.7rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-soft); display: flex; gap: 1.25rem;
+    }
+    .meta .dot { color: var(--accent); }
+    @media (max-width: 640px) { .meta span:not(.label) { display: none; } }
+
+    /* ---------- hero ---------- */
+    .hero {
+      position: relative; padding: 4rem 0 5.5rem;
+      min-height: 88vh; display: flex; flex-direction: column; justify-content: center;
+    }
+    .eyebrow {
+      font-family: var(--mono); font-size: 0.72rem;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink-soft);
+      display: inline-flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;
+      opacity: 0; animation: fadeUp 0.9s 0.1s ease-out forwards;
+    }
+    .eyebrow::before { content: ""; width: 36px; height: 1px; background: var(--accent); }
+
+    .headline {
+      font-family: var(--display); font-weight: 350;
+      font-size: clamp(2.6rem, 7vw, 6.6rem);
+      line-height: 0.98; letter-spacing: -0.035em; margin: 0; color: var(--deep);
+      font-variation-settings: "opsz" 144, "SOFT" 30, "WONK" 0;
+      max-width: 16ch;
+    }
+    .headline .line { display: block; opacity: 0; animation: fadeUp 1s ease-out forwards; }
+    .headline .line:nth-child(1) { animation-delay: 0.25s; }
+    .headline .line:nth-child(2) { animation-delay: 0.4s; }
+    .headline .line:nth-child(3) { animation-delay: 0.55s; }
+    .headline em {
+      font-style: italic; color: var(--accent); font-weight: 400;
+      font-variation-settings: "opsz" 144, "SOFT" 100, "WONK" 1;
+    }
+
+    .hero-after {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: clamp(2rem, 6vw, 5rem); margin-top: clamp(2.5rem, 6vw, 4rem); align-items: end;
+    }
+    @media (max-width: 820px) { .hero-after { grid-template-columns: 1fr; gap: 2.25rem; } }
+
+    .subhead {
+      font-family: var(--display); font-weight: 400;
+      font-size: clamp(1.1rem, 1.7vw, 1.35rem); line-height: 1.5;
+      color: var(--ink-soft); max-width: 44ch; margin: 0;
+      opacity: 0; animation: fadeUp 1s 0.75s ease-out forwards;
+    }
+    .subhead em { font-style: italic; color: var(--ink); font-variation-settings: "opsz" 14, "SOFT" 80; }
+
+    .cta-row {
+      display: flex; align-items: center; gap: 1rem 1.25rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 1s 0.95s ease-out forwards;
+    }
+
+    /* ---------- buttons ---------- */
+    .btn {
+      position: relative; display: inline-flex; align-items: center; gap: 0.85rem;
+      padding: 1.05rem 1.6rem 1.05rem 1.75rem;
+      background: var(--accent); color: var(--paper-light);
+      font-family: var(--mono); font-size: 0.76rem;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      border: 1px solid var(--accent-deep); border-radius: 999px; cursor: pointer;
+      transition: transform 0.25s ease, background 0.25s ease;
+      will-change: transform;
+    }
+    .btn .arrow {
+      width: 1.25rem; height: 1.25rem; display: inline-grid; place-items: center;
+      background: var(--paper-light); border-radius: 50%;
+      transition: transform 0.3s cubic-bezier(.2,.9,.3,1.4);
+    }
+    .btn .arrow svg { width: 0.7rem; height: 0.7rem; stroke: var(--ink); }
+    .btn:hover { background: var(--accent-deep); transform: translateY(-2px); }
+    .btn:hover .arrow { transform: rotate(-45deg); }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+
+    .btn-ghost {
+      background: transparent; color: var(--ink); border: 1px solid var(--rule);
+    }
+    .btn-ghost .arrow { background: var(--accent); }
+    .btn-ghost .arrow svg { stroke: var(--paper-light); }
+    .btn-ghost:hover { background: var(--paper-light); border-color: var(--accent); transform: translateY(-2px); }
+
+    .micro {
+      font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .micro b { color: var(--ink); font-weight: 500; }
+
+    /* decorative squiggle */
+    .squiggle {
+      position: absolute; top: 4rem; right: -6%; width: 58%; max-width: 680px;
+      height: auto; opacity: 0.5; pointer-events: none; z-index: -1;
+    }
+    .squiggle path {
+      fill: none; stroke: var(--accent); stroke-width: 1.5;
+      stroke-dasharray: 1500; stroke-dashoffset: 1500;
+      animation: draw 3.2s 0.4s ease-out forwards;
+    }
+    @media (max-width: 820px) { .squiggle { top: 1rem; right: -22%; width: 120%; opacity: 0.3; } }
+
+    /* ---------- section divider ---------- */
+    .divider {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+      gap: 1.25rem; padding: 3rem 0 2rem;
+    }
+    .divider .label {
+      font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.22em;
+      text-transform: uppercase; color: var(--ink);
+    }
+    .divider .label .num { color: var(--accent); margin-right: 0.4rem; }
+    .divider .line { height: 1px; background: var(--rule); }
+    .divider .small {
+      font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    @media (max-width: 560px) { .divider { grid-template-columns: auto 1fr; } .divider .small { display: none; } }
+
+    /* ---------- statement block ---------- */
+    .statement {
+      padding-top: 1.5rem; padding-bottom: 5.5rem;
+      display: grid; grid-template-columns: 5fr 7fr; gap: clamp(2rem, 6vw, 5rem); align-items: start;
+    }
+    @media (max-width: 900px) { .statement { grid-template-columns: 1fr; gap: 1.5rem; } }
+    .statement-kicker {
+      font-family: var(--display); font-style: italic; font-size: 1.15rem;
+      line-height: 1.45; color: var(--muted); padding-top: 0.6rem;
+      border-top: 1px solid var(--rule);
+    }
+    .statement-body { display: grid; gap: 1.5rem; }
+    .statement-lead {
+      font-family: var(--display); font-weight: 350;
+      font-size: clamp(1.55rem, 3.2vw, 2.6rem); line-height: 1.2;
+      letter-spacing: -0.02em; margin: 0; color: var(--ink);
+      font-variation-settings: "opsz" 96, "SOFT" 40;
+    }
+    .statement-lead em { font-style: italic; color: var(--accent); font-variation-settings: "opsz" 96, "SOFT" 100, "WONK" 1; }
+    .statement p { margin: 0; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.6; max-width: 60ch; }
+
+    /* ---------- panel band (tinted) ---------- */
+    .band {
+      background: linear-gradient(180deg, transparent, var(--paper-light) 7%, var(--paper-light) 93%, transparent);
+      margin: 0 calc(var(--gutter) * -1);
+      padding: 1.5rem var(--gutter) 5.5rem;
+    }
+    .band-intro {
+      display: grid; grid-template-columns: 5fr 7fr; gap: clamp(2rem, 6vw, 5rem); margin-bottom: 3rem;
+    }
+    @media (max-width: 900px) { .band-intro { grid-template-columns: 1fr; } }
+    .band-heading {
+      font-family: var(--display); font-weight: 350;
+      font-size: clamp(2rem, 4.5vw, 3.4rem); line-height: 1.02;
+      letter-spacing: -0.03em; margin: 0; color: var(--deep);
+      font-variation-settings: "opsz" 144, "SOFT" 40;
+    }
+    .band-heading em { font-style: italic; color: var(--accent); }
+    .band-blurb { font-family: var(--display); font-size: 1.05rem; line-height: 1.6; color: var(--ink-soft); max-width: 44ch; }
+
+    /* ---------- numbered items ---------- */
+    .items { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--rule); }
+    .item {
+      display: grid; grid-template-columns: 4rem 1fr auto; gap: 1.5rem; align-items: baseline;
+      padding: 1.6rem 0; border-bottom: 1px solid var(--rule); position: relative;
+      transition: padding 0.35s ease;
+    }
+    .item .num { font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.18em; color: var(--accent); padding-top: 0.45rem; }
+    .item .title {
+      font-family: var(--display); font-weight: 400;
+      font-size: clamp(1.25rem, 2.2vw, 1.8rem); letter-spacing: -0.01em; line-height: 1.15; margin: 0;
+      color: var(--deep); font-variation-settings: "opsz" 72, "SOFT" 60;
+    }
+    .item .title em { font-style: italic; color: var(--accent); }
+    .item .desc { grid-column: 2; max-width: 60ch; font-size: 1.02rem; line-height: 1.6; color: var(--ink-soft); margin: 0.6rem 0 0; }
+    .item .tagword {
+      font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--muted); padding-top: 0.55rem; text-align: right; white-space: nowrap;
+    }
+    .item::after {
+      content: ""; position: absolute; left: 0; top: 0; bottom: -1px; width: 2px;
+      background: var(--accent); transform: scaleY(0); transform-origin: top; transition: transform 0.4s ease;
+    }
+    .item:hover { padding-left: 0.75rem; }
+    .item:hover::after { transform: scaleY(1); }
+    @media (max-width: 720px) {
+      .item { grid-template-columns: 2.5rem 1fr; gap: 0.75rem; }
+      .item .tagword { grid-column: 2; text-align: left; padding-top: 0.4rem; }
+      .item .desc { grid-column: 2; }
+    }
+
+    /* ---------- demo feature ---------- */
+    .demo {
+      padding-bottom: 5.5rem;
+      display: grid; grid-template-columns: 7fr 5fr; gap: clamp(2rem, 6vw, 4rem); align-items: center;
+      padding-top: 1rem;
+    }
+    @media (max-width: 900px) { .demo { grid-template-columns: 1fr; gap: 2rem; } }
+    .demo-copy .demo-lead {
+      font-family: var(--display); font-weight: 350; font-size: clamp(1.8rem, 4vw, 3rem);
+      line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 1.25rem; color: var(--deep);
+      font-variation-settings: "opsz" 144, "SOFT" 40;
+    }
+    .demo-copy p { margin: 0 0 1.75rem; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.6; max-width: 52ch; }
+    .demo-card {
+      background: var(--paper-light); border: 1px solid var(--rule); border-radius: 14px;
+      padding: 1.4rem; box-shadow: 0 20px 50px -30px rgba(40,27,10,0.5);
+    }
+    .demo-window {
+      background: var(--paper); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden;
+    }
+    .demo-topbar {
+      display: flex; align-items: center; gap: 0.4rem; padding: 0.6rem 0.8rem;
+      border-bottom: 1px solid var(--rule);
+    }
+    .demo-topbar .d { width: 9px; height: 9px; border-radius: 50%; background: var(--rule); }
+    .demo-topbar .d:nth-child(1) { background: var(--accent-deep); }
+    .demo-topbar .d:nth-child(2) { background: var(--accent); }
+    .demo-topbar .d:nth-child(3) { background: var(--bright); }
+    .demo-topbar .cap { margin-left: 0.6rem; font-family: var(--mono); font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
+    .demo-svg { display: block; width: 100%; height: auto; }
+    .demo-svg .trunk { stroke: var(--rule); stroke-width: 1.4; fill: none; }
+    .demo-svg .branch { stroke: var(--rule); stroke-width: 1; fill: none; opacity: 0.85; }
+    .demo-svg .node { fill: var(--paper-light); stroke: var(--accent); stroke-width: 1.2; }
+    .demo-svg .node-root { fill: var(--accent); stroke: var(--accent-deep); }
+    .demo-svg .node-hot { fill: var(--bright); stroke: var(--accent-deep); }
+    .demo-svg .bar { fill: var(--paper-deep); }
+    .demo-svg .bar-lead { fill: var(--muted); opacity: 0.55; }
+
+    /* ---------- pricing ---------- */
+    .pricing { padding-top: 3rem; padding-bottom: 6rem; }
+    .pricing-grid {
+      display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: stretch;
+    }
+    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; } }
+
+    .plan {
+      border: 1px solid var(--rule); border-radius: 16px; padding: clamp(1.75rem, 3vw, 2.5rem);
+      background: var(--paper-light); display: flex; flex-direction: column;
+    }
+    .plan-spine { border: 2px solid var(--accent); position: relative; }
+    .plan-full { background: transparent; opacity: 0.9; }
+
+    .plan-eyebrow {
+      font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--muted); display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.1rem;
+    }
+    .plan-name {
+      font-family: var(--display); font-weight: 400; font-style: italic;
+      font-size: clamp(1.6rem, 3vw, 2.2rem); line-height: 1; margin: 0 0 0.5rem; color: var(--deep);
+      font-variation-settings: "opsz" 96, "SOFT" 60, "WONK" 1;
+    }
+    .plan-price {
+      font-family: var(--display); font-weight: 350;
+      font-size: clamp(3.4rem, 8vw, 5.6rem); line-height: 0.9; letter-spacing: -0.04em;
+      margin: 0.25rem 0 0.25rem; color: var(--ink); display: flex; align-items: flex-start; gap: 0.4rem;
+      font-variation-settings: "opsz" 144, "SOFT" 30;
+    }
+    .plan-price .currency { font-size: 0.32em; color: var(--accent); font-style: italic; padding-top: 0.55em; }
+    .plan-price .once {
+      font-size: 0.15em; font-family: var(--mono); letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); padding-top: 2em; padding-left: 0.4em;
+    }
+    .plan-desc { margin: 0.75rem 0 1.75rem; font-size: 1.05rem; line-height: 1.55; color: var(--ink-soft); }
+    .plan-cta { margin-top: auto; }
+
+    .badge {
+      display: inline-block; font-family: var(--mono); font-size: 0.62rem; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--paper-light); background: var(--accent);
+      border-radius: 999px; padding: 0.3rem 0.75rem; line-height: 1;
+    }
+    .badge-soon { color: var(--muted); background: transparent; border: 1px solid var(--muted); }
+
+    .full-note {
+      font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); margin-top: auto; padding-top: 1rem;
+    }
+
+    /* ---------- closing dark block ---------- */
+    .closing {
+      background: var(--dark); color: var(--paper-light);
+      margin: 0 calc(var(--gutter) * -1); padding: clamp(4rem, 8vw, 7rem) var(--gutter);
+      position: relative; overflow: hidden;
+    }
+    .closing::before {
+      content: ""; position: absolute; inset: 0; background-image: var(--grain);
+      opacity: 0.3; mix-blend-mode: screen; pointer-events: none;
+    }
+    .closing-inner {
+      max-width: var(--max); margin: 0 auto; position: relative;
+      display: grid; grid-template-columns: 7fr 5fr; gap: clamp(2rem, 5vw, 4rem); align-items: end;
+    }
+    @media (max-width: 900px) { .closing-inner { grid-template-columns: 1fr; gap: 2.5rem; } }
+    .closing-kicker {
+      font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--dark-soft); margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: 0.75rem;
+    }
+    .closing-kicker::before { content: ""; width: 32px; height: 1px; background: var(--accent); }
+    .closing-headline {
+      font-family: var(--display); font-weight: 350; font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 1.05; letter-spacing: -0.03em; margin: 0; color: var(--paper-light);
+      font-variation-settings: "opsz" 144, "SOFT" 40;
+    }
+    .closing-headline em { font-style: italic; color: var(--paper-deep); }
+    .closing p { margin: 1.5rem 0 0; color: var(--dark-soft); font-size: 1.05rem; line-height: 1.6; max-width: 48ch; }
+    .closing-side { display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; }
+    .closing .btn { background: var(--accent); color: var(--paper-light); border-color: var(--accent); }
+    .closing .btn .arrow { background: var(--paper-light); }
+    .closing .btn .arrow svg { stroke: var(--dark); }
+    .closing .btn:hover { background: var(--bright); }
+    .closing .micro { color: rgba(254,242,232,0.55); }
+    .closing .micro b { color: var(--paper-light); }
+
+    /* ---------- footer ---------- */
+    footer {
+      padding: 2.5rem 0 3rem; display: grid; grid-template-columns: 1fr auto; gap: 1rem; align-items: end;
+    }
+    @media (max-width: 640px) { footer { grid-template-columns: 1fr; } }
+    .colophon {
+      font-family: var(--mono); font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--muted); line-height: 1.8;
+    }
+    .colophon b { color: var(--ink); font-weight: 500; }
+    .pagenum { font-family: var(--display); font-style: italic; font-size: 1.1rem; color: var(--ink-soft); }
+
+    /* keyframes */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes draw { to { stroke-dashoffset: 0; } }
+
+    .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.9s ease, transform 0.9s cubic-bezier(.2,.7,.2,1); }
+    .reveal.in { opacity: 1; transform: translateY(0); }
+    @media (prefers-reduced-motion: reduce) {
+      .reveal, .headline .line, .eyebrow, .subhead, .cta-row { opacity: 1 !important; transform: none !important; animation: none !important; }
+      .squiggle path { animation: none; stroke-dashoffset: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- top bar -->
+  <header class="topbar">
+    <div class="container topbar-row">
+      <span class="mark">Knowledge Expression</span>
+      <div class="meta">
+        <span><span class="dot">●</span> The Spine</span>
+        <span>An interactive map of what you know</span>
+        <span class="label">MMXXVI</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="container">
+      <svg class="squiggle" viewBox="0 0 800 600" aria-hidden="true">
+        <path d="M -20 320 C 80 120, 220 520, 340 280 S 540 80, 640 360 S 780 220, 880 460" />
+        <path d="M -20 380 C 100 540, 260 200, 380 420 S 600 580, 720 260 S 820 380, 880 320" style="opacity:.5; stroke-dasharray:1200; stroke-dashoffset:1200; animation-delay:1.2s;" />
+      </svg>
+
+      <span class="eyebrow">The knowledge you've never been able to put down</span>
+
+      <h1 class="headline">
+        <span class="line">You know more</span>
+        <span class="line">than you've ever been</span>
+        <span class="line">able to <em>explain.</em></span>
+      </h1>
+
+      <div class="hero-after">
+        <p class="subhead">
+          Decades of it. The kind of knowledge that lives in your hands and your instincts, that you've never sat down and organized because it never came out in tidy outlines. Knowledge Expression pulls it out of your head and hands it back as <em>something you can see, use and build on.</em>
+        </p>
+        <div class="cta-row">
+          <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
+            Start The Spine — $1,997
+            <span class="arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+          <a class="btn btn-ghost" href="../live-performance-demo_final.html">
+            See a real map
+            <span class="arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE PROBLEM -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ I.</span> The Problem</span>
+      <span class="line"></span>
+      <span class="small">It's there · it's never had anywhere to go</span>
+    </div>
+  </section>
+
+  <section class="container statement reveal">
+    <p class="statement-kicker">If you've spent your life knowing more than you've ever been able to lay out in order — this is for you.</p>
+    <div class="statement-body">
+      <h2 class="statement-lead">Most people carrying real expertise have never been asked the right way to <em>get it out.</em></h2>
+      <p>It doesn't come out in a form. It doesn't come out when you sit down to "write it all up." It comes out when you talk — when someone who knows how to listen follows the thread you didn't know you were pulling.</p>
+      <p>If you've spent your life knowing more than you've ever been able to lay out in order, this is for you. The knowledge is there. It's never had anywhere to go.</p>
+    </div>
+  </section>
+
+  <!-- WHAT YOU GET -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ II.</span> What You Get</span>
+      <span class="line"></span>
+      <span class="small">A map · a written layer · yours to keep</span>
+    </div>
+  </section>
+
+  <section class="band">
+    <div class="container">
+      <div class="band-intro reveal">
+        <h2 class="band-heading">The shape of what you know — <em>drawn for the first time.</em></h2>
+        <p class="band-blurb">Two layers, built from a single intake and delivered as one piece: the map you can move through, and the throughline that ties it together.</p>
+      </div>
+
+      <ol class="items reveal">
+        <li class="item">
+          <span class="num">01</span>
+          <div>
+            <h3 class="title">An interactive <em>map</em></h3>
+            <p class="desc">An interactive map of your own knowledge — the whole thing laid out visually, the way your mind actually holds it, so you can see the shape of what you know for the first time.</p>
+          </div>
+          <span class="tagword">The whole thing</span>
+        </li>
+        <li class="item">
+          <span class="num">02</span>
+          <div>
+            <h3 class="title">A written <em>throughline</em></h3>
+            <p class="desc">Alongside it, a short written layer that traces the throughline connecting it all — the one you couldn't see yourself because you were standing inside it.</p>
+          </div>
+          <span class="tagword">The connection</span>
+        </li>
+        <li class="item">
+          <span class="num">03</span>
+          <div>
+            <h3 class="title">Yours to <em>keep</em></h3>
+            <p class="desc">Delivered so it's yours to keep, revisit and add to.</p>
+          </div>
+          <span class="tagword">Built to grow</span>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ III.</span> How It Works</span>
+      <span class="line"></span>
+      <span class="small">No call · no performance · no getting it perfect</span>
+    </div>
+  </section>
+
+  <section class="container">
+    <ol class="items reveal" style="margin-bottom:5rem;">
+      <li class="item">
+        <span class="num">01</span>
+        <div>
+          <h3 class="title">You <em>talk</em>, or you write</h3>
+          <p class="desc">You talk, or you write — your choice, and you can switch between them. Most people talk, because talking surfaces things writing never does.</p>
+        </div>
+        <span class="tagword">Your choice</span>
+      </li>
+      <li class="item">
+        <span class="num">02</span>
+        <div>
+          <h3 class="title">A small set of <em>prompts</em></h3>
+          <p class="desc">You get a small set of prompts so it isn't "ramble at your phone." You record on your own time, in one sitting or in pieces. No call. No performance. No getting it perfect.</p>
+        </div>
+        <span class="tagword">On your time</span>
+      </li>
+      <li class="item">
+        <span class="num">03</span>
+        <div>
+          <h3 class="title">Then it gets <em>mapped</em></h3>
+          <p class="desc">Then it gets mapped — and handed back.</p>
+        </div>
+        <span class="tagword">Handed back</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- SEE A REAL MAP -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ IV.</span> See A Real Map</span>
+      <span class="line"></span>
+      <span class="small">The deliverable · not a mockup</span>
+    </div>
+  </section>
+
+  <section class="container demo reveal">
+    <div class="demo-copy">
+      <h2 class="demo-lead">This is a real one.</h2>
+      <p>This is a real one, built from a real intake — a full example of The Full Map, so you can see how deep this goes. Open it, click into it, see where it goes.</p>
+      <p>Every map starts with a question most people have never said out loud. Mine, for this one, was: <em>after decades of touring, performing in venues large and small, and hands-on live work — what do I actually know about live production and performance?</em></p>
+      <p>I built the first version of this on myself. I went through my own intake, and over thirty years of scattered creative work, training and stage work turned into a map I could finally see. Some of what surfaced I already knew. Some of it I didn't have language for until I saw it laid out. And some of it came in the days after — <em>jewels of knowledge sitting in the back of a cabinet</em> I'd forgotten about, until I started recalling my own stories.</p>
+      <p>What you get with The Spine depends on what you bring to the audio. Some people cover a lot of ground in one round and get a map nearly this rich. Others need Tier 2's follow-up round to go deeper. Either way, this is the shape of the thing — not a mockup.</p>
+      <a class="btn" href="../live-performance-demo_final.html">
+        Open the real map
+        <span class="arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+        </span>
+      </a>
+    </div>
+    <a class="demo-card" href="../live-performance-demo_final.html" aria-label="Open the real map">
+      <div class="demo-window">
+        <div class="demo-topbar">
+          <span class="d"></span><span class="d"></span><span class="d"></span>
+          <span class="cap">Live Performance — Intake Map</span>
+        </div>
+        <svg class="demo-svg" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <!-- trunk -->
+          <path class="trunk" d="M60 150 H120" />
+          <!-- branches -->
+          <path class="branch" d="M120 150 C150 150 150 60 185 60" />
+          <path class="branch" d="M120 150 C150 150 150 110 185 110" />
+          <path class="branch" d="M120 150 C150 150 150 150 185 150" />
+          <path class="branch" d="M120 150 C150 150 150 195 185 195" />
+          <path class="branch" d="M120 150 C150 150 150 245 185 245" />
+          <!-- sub-branches -->
+          <path class="branch" d="M245 60 C270 60 270 40 295 40" />
+          <path class="branch" d="M245 60 C270 60 270 78 295 78" />
+          <path class="branch" d="M245 150 C270 150 270 132 295 132" />
+          <path class="branch" d="M245 150 C270 150 270 168 295 168" />
+          <path class="branch" d="M245 245 C270 245 270 262 295 262" />
+          <!-- root node -->
+          <circle class="node-root" cx="60" cy="150" r="9" />
+          <!-- level 1 nodes with label bars -->
+          <g>
+            <circle class="node" cx="185" cy="60" r="6" /><rect class="bar" x="197" y="56" width="42" height="7" rx="3.5" />
+            <circle class="node node-hot" cx="185" cy="110" r="6" /><rect class="bar" x="197" y="106" width="54" height="7" rx="3.5" />
+            <circle class="node" cx="185" cy="150" r="6" /><rect class="bar" x="197" y="146" width="36" height="7" rx="3.5" />
+            <circle class="node" cx="185" cy="195" r="6" /><rect class="bar" x="197" y="191" width="48" height="7" rx="3.5" />
+            <circle class="node" cx="185" cy="245" r="6" /><rect class="bar" x="197" y="241" width="40" height="7" rx="3.5" />
+          </g>
+          <!-- level 2 label bars -->
+          <g>
+            <rect class="bar-lead" x="300" y="37" width="34" height="6" rx="3" />
+            <rect class="bar-lead" x="300" y="75" width="28" height="6" rx="3" />
+            <rect class="bar-lead" x="300" y="129" width="40" height="6" rx="3" />
+            <rect class="bar-lead" x="300" y="165" width="30" height="6" rx="3" />
+            <rect class="bar-lead" x="300" y="259" width="36" height="6" rx="3" />
+          </g>
+        </svg>
+      </div>
+    </a>
+  </section>
+
+  <!-- PRICING -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ V.</span> The Offer</span>
+      <span class="line"></span>
+      <span class="small">Start with The Spine</span>
+    </div>
+  </section>
+
+  <section class="container pricing">
+    <div class="pricing-grid reveal">
+      <div class="plan plan-spine">
+        <div class="plan-eyebrow"><span class="badge">Available now</span> One-time</div>
+        <h3 class="plan-name">The Spine</h3>
+        <p class="plan-price"><span class="currency">$</span>1,997<span class="once">once</span></p>
+        <p class="plan-desc">One intake, mapped and delivered. The full interactive map plus the written layer. This is the whole thing, start to finish. (The demo above is a Full Map example — The Spine's depth depends on what you bring to the audio.)</p>
+        <div class="plan-cta">
+          <span class="micro" style="display:block; margin-bottom:0.75rem;">Delivered within 7–10 business days.</span>
+          <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
+            Start The Spine — $1,997
+            <span class="arrow" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+            </span>
+          </a>
+        </div>
+      </div>
+
+      <div class="plan plan-full">
+        <div class="plan-eyebrow"><span class="badge badge-soon">Opening soon</span></div>
+        <h3 class="plan-name">The Full Map</h3>
+        <p class="plan-desc">Everything in The Spine, plus a follow-up round to go deeper and an optional addition after delivery. For knowledge too wide or too deep for a single pass.</p>
+        <p class="full-note">— Not yet available —</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WHY IT'S WORTH IT -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ VI.</span> The Return</span>
+      <span class="line"></span>
+      <span class="small">That's not the bonus · that's the point</span>
+    </div>
+  </section>
+
+  <section class="container statement reveal">
+    <p class="statement-kicker">One idea you finally act on. One offer you can finally name. One piece of knowledge you can finally put to use.</p>
+    <div class="statement-body">
+      <h2 class="statement-lead">You're sitting on more than one thing of <em>real value.</em></h2>
+      <p>You're sitting on more than one thing of real value. One idea you finally act on, one offer you can finally name, one piece of knowledge you can finally put to use — and the map has already paid for itself. That's not the bonus. That's the point.</p>
+      <p>There's another kind of value too, harder to predict but common. Something about telling the story out loud, then watching it laid out in front of you, tends to shake something loose — a connection you hadn't made, a memory you'd filed away, an idea that had nowhere to attach until now. Not guaranteed. But for most people, saying it and then seeing it changes something.</p>
+    </div>
+  </section>
+
+  <!-- CLOSING / REASSURANCE -->
+  <section class="closing">
+    <div class="closing-inner">
+      <div>
+        <span class="closing-kicker">The honest version</span>
+        <h2 class="closing-headline">It'll show you what you already know, in a shape you've <em>never been able to see.</em></h2>
+        <p>You won't have seen your map before it's built — no one has. So here's the honest version: it's built from your own words, in your own order. It won't tell you things you don't know.</p>
+      </div>
+      <div class="closing-side">
+        <span class="micro"><b>The Spine</b> · $1,997 · one intake, start to finish</span>
+        <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
+          Start The Spine — $1,997
+          <span class="arrow" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
+          </span>
+        </a>
+        <span class="micro">Or <a href="../live-performance-demo_final.html" style="text-decoration:underline; text-underline-offset:3px;">see a real map</a> first.</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- footer -->
+  <footer class="container">
+    <p class="colophon">
+      <b>Knowledge Expression</b> · An interactive map of what you know<br />
+      Set in <i>Fraunces</i> &amp; JetBrains Mono · © MMXXVI
+    </p>
+    <span class="pagenum">— end —</span>
+  </footer>
+
+  <script>
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+  </script>
+</body>
+</html>

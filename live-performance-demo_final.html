@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Client Mindmap</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: #FDE6D6;
+    overflow: hidden;
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  #viewport {
+    position: fixed; inset: 0;
+    overflow: hidden;
+    cursor: grab;
+    touch-action: none;
+  }
+  #viewport.panning { cursor: grabbing; }
+  #canvas {
+    position: absolute; top: 0; left: 0;
+    transform-origin: 0 0;
+  }
+  #canvas svg { position: absolute; top: 0; left: 0; }
+  .node {
+    position: absolute;
+    display: flex;
+    align-items: center;
+  }
+  .node-root {
+    width: 64px; height: 64px;
+    border-radius: 50%;
+    background: #E58628;
+    color: #281B0A;
+    justify-content: center;
+    font-size: 14px;
+  }
+  .node-branch {
+    min-height: 44px;
+    padding: 0 22px;
+    border-radius: 22px;
+    color: #FDE6D6;
+    font-size: 15px;
+    white-space: nowrap;
+  }
+  .node-leaf {
+    min-height: 40px;
+    max-width: 230px;
+    padding: 9px 16px;
+    border-radius: 8px;
+    background: #FEF2E8;
+    border: 1px solid #E5B085;
+    color: #281B0A;
+    font-size: 13.5px;
+    line-height: 1.35;
+  }
+  .node[data-branch="origin"] { background: #C9562E; }
+  .node[data-branch="knowledge"] { background: #8E2509; }
+  .node[data-branch="stuck"] { background: #232712; }
+  .node.clickable { cursor: pointer; }
+  .node.clickable:hover { box-shadow: 0 0 0 2px rgba(40, 27, 10, 0.12); }
+  .node-badge {
+    margin-left: 10px;
+    width: 22px; height: 22px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1.5px solid #F78001;
+    color: #F78001;
+    font-size: 12px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(253, 230, 214, 0.15);
+  }
+  #corner-label {
+    position: fixed; top: 18px; left: 24px;
+    font-size: 11px; letter-spacing: 2px;
+    color: #A67557;
+    pointer-events: none;
+  }
+  #toolbar {
+    position: fixed; bottom: 20px; right: 20px;
+    display: flex; gap: 8px;
+    background: rgba(253, 230, 214, 0.92);
+    padding: 8px; border-radius: 10px;
+    border: 1px solid #E5B085;
+  }
+  #toolbar button {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #C9562E;
+    background: #FEF2E8;
+    color: #281B0A;
+    cursor: pointer;
+  }
+  #toolbar button:hover { background: #F2C9AC; }
+</style>
+</head>
+<body>
+
+<div id="viewport">
+  <div id="canvas"></div>
+</div>
+<div id="corner-label"></div>
+<div id="toolbar">
+  <button id="btn-expand-all" type="button">Expand all</button>
+  <button id="btn-collapse-all" type="button">Collapse all</button>
+  <button id="btn-zoom-out" type="button" aria-label="Zoom out">&minus;</button>
+  <button id="btn-zoom-in" type="button" aria-label="Zoom in">+</button>
+  <button id="btn-reset" type="button">Reset view</button>
+</div>
+
+<script>
+// ==================================================================
+// CLIENT DATA — edit this block only when building a new client's
+// mindmap. Nothing below this block (the rendering engine) needs to
+// change per client.
+//
+// Structure:
+//   - Always exactly three top-level branches, in this fixed order,
+//     with these fixed ids: "origin", "knowledge", "stuck".
+//   - Every node is { label, children?, collapsed? }.
+//   - children is optional and recursive — any node can have any
+//     number of children, at any depth.
+//   - collapsed: true makes a node start collapsed (shows a "+n"
+//     badge instead of its children). Omit it (or use false) for a
+//     node that should start expanded.
+//   - clientName drives the small corner label. rootLabel is
+//     optional and defaults to "You".
+// ==================================================================
+const mindmapData = {
+  clientName: "April — Live Performance",
+  rootLabel: "You",
+  branches: [
+    {
+      id: "origin",
+      label: "Origin",
+      children: [
+        {
+          label: "Realization, live: you can recall recording on bass long before CalArts, but almost no memory of performing live until Klymaxx",
+          children: [
+            { label: "The dislodged memory surprised you mid-interview — you called it \"a crazy thing to not remember\"" },
+            { label: "Formal training: BFA in Multi-Instrumental Studies from CalArts, classical piano, electric bass and jazz among the core disciplines" }
+          ]
+        },
+        {
+          label: "The first remembered gig, with Klymaxx, doubled as an unplanned lesson in masking",
+          children: [
+            { label: "What you remember is general discomfort more than specific nerves — new people, an unfamiliar venue, a narrow stage set up behind the headliner's gear" },
+            { label: "Playing with a famous band for the first time added its own layer of unfamiliarity on top of the physical setup" },
+            { label: "Looking back through what you now know about being autistic and ADHD, you read that discomfort as high-level masking — real-time systems modeling of a totally new environment, on top of playing" }
+          ]
+        },
+        {
+          label: "Under that overload, you narrowed down to the one thing you could control: playing the correct notes",
+          children: [
+            { label: "In most other ensemble settings you have more leeway, reading a chord chart rather than a fixed part" },
+            { label: "Klymaxx's songs were hits the audience already knew, so the bass parts needed to stay close to the recorded lines, sometimes with almost no room for embellishment" }
+          ]
+        },
+        {
+          label: "Two different drummers in Klymaxx taught you two different modes of being on stage",
+          children: [
+            { label: "The first drummer had brief, unpredictable rhythmic drift — never more than a measure — which you had to quietly track and compensate for without it becoming visible" },
+            { label: "The second drummer was different: real rapport, genuine fun together, and over time enough trust to stretch the edges of the music together" },
+            { label: "Note: keep this pairing general in any client-facing version — April flagged the first-drummer detail as something that shouldn't be traceable back to a specific person" }
+          ]
+        },
+        {
+          label: "A five-minute story that still makes you laugh: the night the singers missed their cue",
+          children: [
+            { label: "The band's intro had a fixed musical loop with a fixed entrance point for the singers — when they didn't appear, you, the drummer and the guitarist just kept hitting that same entrance point on repeat" },
+            { label: "What carried them through wasn't a plan, it was trust and eye contact with your bandmates, layered on top of the fixed structure" },
+            { label: "When the singers finally appeared, the feeling was relief mixed with \"where the hell have you been\"" }
+          ]
+        },
+        {
+          label: "La Sonora Tropicana forced total reliance on structure, with none of your usual anchors available",
+          children: [
+            { label: "You joined last-minute through a friend, with zero prior familiarity with the music, the band, or much of the language spoken around you" },
+            { label: "Learned the songs from charts in a single rehearsal, then got in a van and played your first show the next day" },
+            { label: "That first show was performed entirely in Spanish, for a Spanish-speaking audience — you hadn't realized this going in, and had no cultural or linguistic reference point once you were on stage" },
+            { label: "With no drummer-trust relationship to fall back on, the chart order and the music director's cues were the only things holding you steady" }
+          ]
+        },
+        {
+          label: "The technical side of playing stays the same everywhere — the looseness only shows up with trust",
+          children: [
+            { label: "Reading what's actually audible and staying locked to the chart or the notes works the same way whether you trust the band or not" },
+            { label: "Stretching the music, playing along the edges together, only happens once real trust with the other musicians is there" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "knowledge",
+      label: "The Knowledge Itself",
+      children: [
+        {
+          label: "The first twenty seconds of a show are a real-time diagnostic system, not just a warm-up",
+          children: [
+            { label: "During soundcheck, you set your monitor mix with the sound engineer — for you as bass player, mostly bass drum and snare, then vocals to track where the singer is, then a little guitar or keys for harmony" },
+            { label: "That mix sometimes isn't set or may not carry over — especially with multiple bands on a bill" },
+            { label: "So the real skill isn't having a good mix, it's using the first twenty seconds of the show to figure out what's actually audible, then deciding where your focus needs to go for the rest of the set" }
+          ]
+        },
+        {
+          label: "A baseline connection with the drummer functions as a stability anchor",
+          children: [
+            { label: "With a drummer you play with regularly, you can hold time with her almost automatically, without focused attention" },
+            { label: "That stability is what frees you up to take in the wider band picture instead of needing to lock in moment to moment" }
+          ]
+        },
+        {
+          label: "Reading body language as a backup channel when you can't hear the band",
+          children: [
+            { label: "When you can't hear the singers or guitar player, you read their movement — learned from playing the same songs enough times to know what each part of a song normally looks like from behind" },
+            { label: "You compared it to actors on stage compensating when a scene partner skips a chunk of dialogue — an ensemble skill, not just a musical one" },
+            { label: "Known limit: body language can occasionally mislead, if someone trips up but their movement still signals the wrong part of the song" }
+          ]
+        },
+        {
+          label: "Redundancy is the actual system — no single point of failure",
+          children: [
+            { label: "Drummer feel, body language reading, song structure knowledge and muscle memory all back each other up" },
+            { label: "Couldn't recall a specific moment of missing something entirely — read as the redundancy generally holding, not luck" }
+          ]
+        },
+        {
+          label: "A toolkit for staying useful on stage when you lose your place",
+          children: [
+            { label: "You don't have perfect pitch and aren't strong at real-time relative pitch, so you can't just instantly land on a new note when something shifts" },
+            { label: "In a low-stakes moment, you fumble toward the right note until you find the transition" },
+            { label: "Live on stage, the move is different: drop back, mute or lighten notes, hold a pulse with the drummer instead of playing a clear wrong note, buy time to relocate before coming back in fully" },
+            { label: "As the bass player you're usually on the root note, so a wrong note is obvious to everyone and can throw off the singer — muting or lightening masks the uncertainty without derailing the show" }
+          ]
+        },
+        {
+          label: "Flagged mid-interview: a difference in how you mentally map piano versus a fretted instrument",
+          children: [
+            { label: "Bass feels more pattern-based on the fretboard, with real gaps in your own mapping of it, versus what feels like a more knowledge-based relationship with piano" },
+            { label: "Not fully worked out — noted as an open thread rather than a settled comparison" }
+          ]
+        },
+        {
+          label: "Realization, live: you don't retain music by ear — you need reps, not a single hearing",
+          children: [
+            { label: "Not a \u201chear it once and have it forever\u201d player — you need repetition, a visual map built up over time and muscle memory layered together" },
+            { label: "You state this plainly about yourself, not as a deficit but as operating information you design your practice around" }
+          ]
+        },
+        {
+          label: "What you'd actually tell someone anxious about not having \u201cnatural\u201d ability",
+          children: [
+            { label: "Practice the music, but specifically toward song structure and form, not just the notes" },
+            { label: "Once the structure is internalized, muscle memory can find the way out of trouble even when the conscious mind is lost" },
+            { label: "You explicitly separate this from perfect pitch or hearing something once — you say neither of those is necessary for a performer to be solid on stage" },
+            { label: "Being nervous about performing is close to universal, not a sign something is wrong" }
+          ]
+        }
+      ]
+    },
+    {
+      id: "stuck",
+      label: "What's Stuck",
+      children: [
+        {
+          label: "Realization, live: for someone with this exact skill set, the block was never going to be musical",
+          children: [
+            { label: "If someone has this real-time adaptive skill set, they're already working musicians, or they've consciously chosen not to, or it's a hobby by choice" },
+            { label: "Whatever is actually stopping them has nothing to do with the music itself" }
+          ]
+        },
+        {
+          label: "The real bottleneck sits around the skill, not inside it",
+          children: [
+            { label: "Possible blockers named: neurodivergence, introversion, feeling out of place in certain rooms or situations" },
+            { label: "None of those are musical problems — they're personal or circumstantial ones sitting next to a fully capable skill set" }
+          ]
+        },
+        {
+          label: "This knowledge doesn't have a market problem — it has a transmission problem",
+          children: [
+            { label: "Considered whether \u201cwho would pay for this\u201d was the real stuck point, and priced it out — lessons from a working pro can easily run over $100 an hour" },
+            { label: "Concluded the issue isn't price sensitivity — this specific real-time adaptive knowledge isn't something you learn from a course or a method book" },
+            { label: "You only get it from direct conversation with, or direct experience alongside, someone who has actually lived it, which makes it rare rather than unaffordable" }
+          ]
+        },
+        {
+          label: "Realization, live: the actual stuck point is the gap between having the knowledge and being able to claim, use or build a life around it",
+          children: [
+            { label: "Not an incomplete-knowledge problem — the knowledge is complete and functional" },
+            { label: "The block sits entirely in the personal and circumstantial layer around it" }
+          ]
+        }
+      ]
+    }
+  ]
+};
+// ==================================================================
+// RENDERING ENGINE — do not edit below this line.
+// ==================================================================
+(function () {
+  const viewport = document.getElementById("viewport");
+  const canvas = document.getElementById("canvas");
+
+  const H_GAP = 70;
+  const V_GAP = 22;
+  const PAD = 40;
+  const MIN_ZOOM = 0.4;
+  const MAX_ZOOM = 2.5;
+  const ZOOM_STEP = 1.2;
+
+  let expandedState = {};
+  let zoom = 1;
+  let panX = 0;
+  let panY = 0;
+  let lastRootNode = null;
+  let lastContentWidth = 0;
+  let lastContentHeight = 0;
+  let userInteracted = false;
+
+  function getExpanded(id, node) {
+    if (!(id in expandedState)) expandedState[id] = !node.collapsed;
+    return expandedState[id];
+  }
+
+  function buildVisibleTree() {
+    const rootWrapper = { label: mindmapData.rootLabel || "You", children: mindmapData.branches };
+    let nodesFlat = [];
+
+    function walk(node, id, depth, parent, type) {
+      const hasChildren = !!(node.children && node.children.length);
+      const expanded = hasChildren ? getExpanded(id, node) : false;
+      const entry = {
+        id, label: node.label, depth, type, parent,
+        hasChildren, childCount: hasChildren ? node.children.length : 0,
+        expanded, children: []
+      };
+      nodesFlat.push(entry);
+      if (parent) parent.children.push(entry);
+      if (hasChildren && expanded) {
+        node.children.forEach((child, i) => {
+          const childId = depth === 0 ? child.id : (id + "." + i);
+          const childType = depth === 0 ? "branch" : "leaf";
+          walk(child, childId, depth + 1, entry, childType);
+        });
+      }
+    }
+
+    walk(rootWrapper, "root", 0, null, "root");
+    return nodesFlat;
+  }
+
+  function render() {
+    const nodesFlat = buildVisibleTree();
+    canvas.innerHTML = "";
+
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    canvas.appendChild(svg);
+
+    nodesFlat.forEach((n) => {
+      const el = document.createElement("div");
+      const clickable = n.hasChildren && n.type !== "root";
+      el.className = "node node-" + n.type + (clickable ? " clickable" : "");
+      el.style.visibility = "hidden";
+      if (n.type === "branch") el.setAttribute("data-branch", n.id);
+
+      const label = document.createElement("span");
+      label.className = "node-label";
+      label.textContent = n.label;
+      el.appendChild(label);
+
+      if (n.hasChildren && !n.expanded) {
+        const badge = document.createElement("span");
+        badge.className = "node-badge";
+        badge.textContent = "+" + n.childCount;
+        el.appendChild(badge);
+      }
+
+      if (clickable) {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          expandedState[n.id] = !n.expanded;
+          render();
+        });
+      }
+
+      canvas.appendChild(el);
+      n.el = el;
+    });
+
+    // Pass 1: measure (elements have layout size even while visibility:hidden)
+    const columnWidths = [];
+    nodesFlat.forEach((n) => {
+      columnWidths[n.depth] = Math.max(columnWidths[n.depth] || 0, n.el.offsetWidth);
+    });
+
+    const columnOffsets = [PAD];
+    for (let d = 1; d < columnWidths.length; d++) {
+      columnOffsets[d] = columnOffsets[d - 1] + columnWidths[d - 1] + H_GAP;
+    }
+
+    // Pass 2: y positions (terminal/visible-leaf nodes consume a row; parents average their children)
+    let cursorY = 0;
+    function assignY(n) {
+      if (n.expanded && n.children.length) {
+        n.children.forEach(assignY);
+        const ys = n.children.map((c) => c.y);
+        n.y = (Math.min(...ys) + Math.max(...ys)) / 2;
+      } else {
+        n.y = cursorY + n.el.offsetHeight / 2;
+        cursorY += n.el.offsetHeight + V_GAP;
+      }
+    }
+    assignY(nodesFlat[0]);
+
+    // Pass 3: x positions
+    function assignX(n) {
+      n.x = columnOffsets[n.depth];
+      n.children.forEach(assignX);
+    }
+    assignX(nodesFlat[0]);
+
+    // Size the canvas to the new content BEFORE placing elements. Leaf boxes are
+    // width:auto + max-width, so their wrapped height depends on the space
+    // between their left edge and the canvas right edge. If they were placed
+    // while the canvas still held the previous render's (narrower) width, deep
+    // boxes would get squeezed, wrap into extra lines, and paint taller than the
+    // row the layout reserved for them — overlapping their siblings until the
+    // next render corrected it. Sizing first keeps measured and painted heights
+    // consistent, so the layout is correct on the first render.
+    const maxDepth = columnWidths.length - 1;
+    const contentWidth = columnOffsets[maxDepth] + columnWidths[maxDepth] + PAD;
+    const contentHeight = cursorY + PAD;
+    canvas.style.width = contentWidth + "px";
+    canvas.style.height = contentHeight + "px";
+
+    // Pass 4: place elements
+    nodesFlat.forEach((n) => {
+      n.el.style.left = n.x + "px";
+      n.el.style.top = (n.y - n.el.offsetHeight / 2) + "px";
+      n.el.style.visibility = "visible";
+    });
+
+    let pathsHTML = "";
+    nodesFlat.forEach((n) => {
+      if (n.parent) {
+        const x1 = n.parent.x + n.parent.el.offsetWidth;
+        const y1 = n.parent.y;
+        const x2 = n.x;
+        const y2 = n.y;
+        const mx = (x1 + x2) / 2;
+        pathsHTML += '<path d="M' + x1 + ',' + y1 + ' C' + mx + ',' + y1 + ' ' + mx + ',' + y2 + ' ' + x2 + ',' + y2 +
+          '" fill="none" stroke="#D8A57E" stroke-width="1.5"/>';
+      }
+    });
+    svg.setAttribute("width", contentWidth);
+    svg.setAttribute("height", contentHeight);
+    svg.innerHTML = pathsHTML;
+
+    lastRootNode = nodesFlat[0];
+    lastContentWidth = contentWidth;
+    lastContentHeight = contentHeight;
+  }
+
+  function applyTransform() {
+    canvas.style.transform = "translate(" + panX + "px, " + panY + "px) scale(" + zoom + ")";
+  }
+
+  function setZoomAt(newZoomRaw, clientX, clientY) {
+    const rect = viewport.getBoundingClientRect();
+    const cx = clientX != null ? clientX - rect.left : rect.width / 2;
+    const cy = clientY != null ? clientY - rect.top : rect.height / 2;
+    const newZoom = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, newZoomRaw));
+    const px = (cx - panX) / zoom;
+    const py = (cy - panY) / zoom;
+    panX = cx - px * newZoom;
+    panY = cy - py * newZoom;
+    zoom = newZoom;
+    applyTransform();
+  }
+
+  function zoomBy(factor, clientX, clientY) {
+    setZoomAt(zoom * factor, clientX, clientY);
+  }
+
+  // Fits the whole currently-visible tree inside the viewport, centered —
+  // used on load and after any action that changes the tree's shape, so the
+  // map never collapses or expands off-screen.
+  function fitToView() {
+    if (!lastContentWidth || !lastContentHeight) return;
+    const rect = viewport.getBoundingClientRect();
+    if (!rect.width || !rect.height) return;
+    // No MIN_ZOOM floor here on purpose: fitting the whole map on screen
+    // matters more than the manual-zoom readability floor. The user can
+    // always zoom in from here.
+    const MARGIN = 0.88;
+    const newZoom = Math.min(MAX_ZOOM, (Math.min(rect.width / lastContentWidth, rect.height / lastContentHeight) * MARGIN));
+    zoom = newZoom;
+    panX = (rect.width - lastContentWidth * zoom) / 2;
+    panY = (rect.height - lastContentHeight * zoom) / 2;
+    applyTransform();
+  }
+
+  function expandAllOrCollapseAll(value) {
+    function walk(node, id) {
+      if (node.children && node.children.length) {
+        expandedState[id] = value;
+        node.children.forEach((c, i) => walk(c, id + "." + i));
+      }
+    }
+    mindmapData.branches.forEach((b) => walk(b, b.id));
+    render();
+    userInteracted = false;
+    fitToView();
+  }
+
+  function resetView() {
+    expandedState = {};
+    render();
+    userInteracted = false;
+    fitToView();
+  }
+
+  // Toolbar
+  document.getElementById("btn-expand-all").addEventListener("click", () => expandAllOrCollapseAll(true));
+  document.getElementById("btn-collapse-all").addEventListener("click", () => expandAllOrCollapseAll(false));
+  document.getElementById("btn-zoom-in").addEventListener("click", () => { userInteracted = true; zoomBy(ZOOM_STEP); });
+  document.getElementById("btn-zoom-out").addEventListener("click", () => { userInteracted = true; zoomBy(1 / ZOOM_STEP); });
+  document.getElementById("btn-reset").addEventListener("click", resetView);
+
+  // Mouse pan
+  let isPanning = false;
+  let startX = 0, startY = 0, startPanX = 0, startPanY = 0;
+
+  viewport.addEventListener("mousedown", (e) => {
+    if (e.target.closest && e.target.closest(".clickable")) return;
+    userInteracted = true;
+    isPanning = true;
+    startX = e.clientX; startY = e.clientY;
+    startPanX = panX; startPanY = panY;
+    viewport.classList.add("panning");
+  });
+  window.addEventListener("mousemove", (e) => {
+    if (!isPanning) return;
+    panX = startPanX + (e.clientX - startX);
+    panY = startPanY + (e.clientY - startY);
+    applyTransform();
+  });
+  window.addEventListener("mouseup", () => {
+    isPanning = false;
+    viewport.classList.remove("panning");
+  });
+
+  // Wheel zoom
+  viewport.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    userInteracted = true;
+    zoomBy(e.deltaY < 0 ? ZOOM_STEP : 1 / ZOOM_STEP, e.clientX, e.clientY);
+  }, { passive: false });
+
+  // Touch pan + pinch zoom
+  let touchStartDist = null;
+  let touchStartZoom = 1;
+  let touchStartMid = null;
+
+  viewport.addEventListener("touchstart", (e) => {
+    if (e.target.closest && e.target.closest(".clickable")) return;
+    userInteracted = true;
+    if (e.touches.length === 1) {
+      isPanning = true;
+      startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+      startPanX = panX; startPanY = panY;
+    } else if (e.touches.length === 2) {
+      isPanning = false;
+      const [a, b] = e.touches;
+      touchStartDist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      touchStartZoom = zoom;
+      touchStartMid = { x: (a.clientX + b.clientX) / 2, y: (a.clientY + b.clientY) / 2 };
+    }
+  }, { passive: true });
+
+  viewport.addEventListener("touchmove", (e) => {
+    if (e.touches.length === 1 && isPanning) {
+      panX = startPanX + (e.touches[0].clientX - startX);
+      panY = startPanY + (e.touches[0].clientY - startY);
+      applyTransform();
+    } else if (e.touches.length === 2 && touchStartDist) {
+      const [a, b] = e.touches;
+      const dist = Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+      setZoomAt(touchStartZoom * (dist / touchStartDist), touchStartMid.x, touchStartMid.y);
+    }
+  }, { passive: true });
+
+  viewport.addEventListener("touchend", () => {
+    isPanning = false;
+    touchStartDist = null;
+  });
+
+  // Corner label
+  document.getElementById("corner-label").textContent =
+    (mindmapData.clientName || "Sample Client").toUpperCase() + " — INTAKE MAP";
+
+  // Re-fit on resize until the user has manually panned/zoomed —
+  // covers viewport size changes that happen right after initial load.
+  window.addEventListener("resize", () => {
+    if (!userInteracted) fitToView();
+  });
+
+  // Initial render — start fully collapsed (root + three branches only), so
+  // the map opens large and readable instead of showing everything at once.
+  expandAllOrCollapseAll(false);
+})();
+</script>
+</body>
+</html>
