@@ -519,10 +519,7 @@ const mindmapData = {
   }
 
   function resetView() {
-    expandedState = {};
-    render();
-    userInteracted = false;
-    fitToView();
+    expandAllOrCollapseAll(false);
   }
 
   // Toolbar
