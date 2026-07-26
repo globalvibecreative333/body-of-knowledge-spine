@@ -13,7 +13,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Body of Knowledge — Your expertise, mapped</title>
-  <meta name="description" content="Decades of hard-won knowledge, pulled out of your head and handed back as an interactive map you can see, use and build on. The Spine — $1,997." />
+  <meta name="description" content="Decades of hard-won knowledge, pulled out of your head and handed back as an interactive map you can see, use and build on. The Spine — $997." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..900,0..100,0..1&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
@@ -330,16 +330,16 @@
     /* ---------- pricing ---------- */
     .pricing { padding-top: 3rem; padding-bottom: 6rem; }
     .pricing-grid {
-      display: grid; grid-template-columns: 1.35fr 1fr; gap: clamp(1.5rem, 4vw, 3rem); align-items: stretch;
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(1.25rem, 2.5vw, 2rem); align-items: stretch;
     }
-    @media (max-width: 900px) { .pricing-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 1100px) { .pricing-grid { grid-template-columns: 1fr; } }
 
     .plan {
       border: 1px solid var(--rule); border-radius: 16px; padding: clamp(1.75rem, 3vw, 2.5rem);
       background: var(--paper-light); display: flex; flex-direction: column;
     }
     .plan-spine { border: 2px solid var(--accent); position: relative; }
-    .plan-full { background: transparent; opacity: 0.9; }
+    .plan-full { background: var(--paper-light); }
 
     .plan-eyebrow {
       font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.2em; text-transform: uppercase;
@@ -352,7 +352,7 @@
     }
     .plan-price {
       font-family: var(--display); font-weight: 350;
-      font-size: clamp(3.4rem, 8vw, 5.6rem); line-height: 0.9; letter-spacing: -0.04em;
+      font-size: clamp(2.4rem, 4.4vw, 3.4rem); line-height: 0.95; letter-spacing: -0.035em;
       margin: 0.25rem 0 0.25rem; color: var(--ink); display: flex; align-items: flex-start; gap: 0.4rem;
       font-variation-settings: "opsz" 144, "SOFT" 30;
     }
@@ -375,6 +375,76 @@
       font-family: var(--mono); font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase;
       color: var(--muted); margin-top: auto; padding-top: 1rem;
     }
+
+    .upgrade {
+      margin-top: 2.25rem; padding: 1.4rem 1.6rem; border: 1px dashed var(--rule); border-radius: 12px;
+      display: flex; align-items: baseline; gap: 0.9rem; background: rgba(254,242,232,0.5);
+    }
+    .upgrade .lock { color: var(--accent); font-size: 1rem; }
+    .upgrade p { margin: 0; font-size: 1.02rem; line-height: 1.55; color: var(--ink); }
+    .upgrade p em { font-style: italic; color: var(--deep); }
+
+    .plan-list { list-style: none; padding: 0; margin: 0 0 1.75rem; display: grid; gap: 0.85rem; }
+    .plan-list li {
+      position: relative; padding-left: 1.3rem; font-size: 1.01rem; line-height: 1.55; color: var(--ink-soft);
+    }
+    .plan-list li::before {
+      content: ""; position: absolute; left: 0; top: 0.55em; width: 8px; height: 2px; background: var(--accent);
+    }
+    .plan-cta .btn { width: 100%; justify-content: space-between; }
+    .btn-disabled { cursor: default; pointer-events: none; opacity: 0.6; }
+    .btn-disabled:hover { background: var(--accent); transform: none; }
+
+    /* ---------- hero tagline ---------- */
+    .hero-tagline {
+      font-family: var(--display); font-style: italic; font-size: clamp(1.05rem, 1.6vw, 1.2rem);
+      color: var(--deep); margin: 1.25rem 0 0; max-width: 44ch;
+      opacity: 0; animation: fadeUp 1s 0.85s ease-out forwards;
+    }
+
+    /* ---------- who for ---------- */
+    .whofor {
+      display: grid; grid-template-columns: 6fr 6fr; gap: clamp(2rem, 6vw, 5rem); align-items: start;
+      padding-bottom: 5.5rem;
+    }
+    @media (max-width: 900px) { .whofor { grid-template-columns: 1fr; gap: 2.5rem; } }
+    .whofor ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.5rem; }
+    .whofor li {
+      position: relative; padding-left: 1.6rem; font-size: 1.08rem; line-height: 1.6; color: var(--ink-soft);
+    }
+    .whofor li::before {
+      content: ""; position: absolute; left: 0; top: 0.65em; width: 12px; height: 2px; background: var(--accent);
+    }
+
+    /* ---------- figure ---------- */
+    .figure {
+      border: 1px solid var(--rule); border-radius: 14px; background: var(--paper-light); overflow: hidden;
+    }
+    .figure img, .figure video { display: block; width: 100%; height: auto; }
+    .figure figcaption {
+      font-family: var(--mono); font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); padding: 0.9rem 1.1rem; border-top: 1px solid var(--rule);
+    }
+
+    /* ---------- why I built this ---------- */
+    .built {
+      display: grid; grid-template-columns: 6fr 6fr; gap: clamp(2rem, 6vw, 5rem); align-items: start;
+      padding-bottom: 5.5rem;
+    }
+    @media (max-width: 900px) { .built { grid-template-columns: 1fr; gap: 2.5rem; } }
+    .built p { margin: 0 0 1.5rem; color: var(--ink-soft); font-size: 1.08rem; line-height: 1.6; max-width: 56ch; }
+    .built p em { font-style: italic; color: var(--deep); }
+    .built-media { display: flex; flex-direction: column; gap: 1.25rem; }
+
+    /* ---------- questions before you buy ---------- */
+    .qa { max-width: 62ch; margin: 0; padding-bottom: 5.5rem; }
+    .qa dt {
+      font-family: var(--display); font-weight: 400; font-size: clamp(1.2rem, 2vw, 1.5rem);
+      letter-spacing: -0.01em; color: var(--deep); margin: 2rem 0 0.6rem;
+      font-variation-settings: "opsz" 72, "SOFT" 60;
+    }
+    .qa dt:first-child { margin-top: 0; }
+    .qa dd { margin: 0; font-size: 1.05rem; line-height: 1.6; color: var(--ink-soft); }
 
     /* ---------- closing dark block ---------- */
     .closing {
@@ -460,18 +530,21 @@
       <span class="eyebrow">The knowledge you've never been able to put down</span>
 
       <h1 class="headline">
-        <span class="line">You know more</span>
-        <span class="line">than you've ever been</span>
-        <span class="line">able to <em>explain.</em></span>
+        <span class="line">Finally claim</span>
+        <span class="line">what you</span>
+        <span class="line">already <em>know.</em></span>
       </h1>
 
       <div class="hero-after">
-        <p class="subhead">
-          Decades of it — most of it sitting under the layer you actually use, the top inch that gets asked for while the rest goes untouched because nothing ever needed it. Body of Knowledge goes past that layer and hands the whole shape back to you — <em>something you can see, use and build on.</em>
-        </p>
+        <div>
+          <p class="subhead">
+            You've spent years — maybe decades — building expertise nobody ever asked you to organize. Body of Knowledge pulls it out of you, through talking instead of writing, and hands it back as <em>something you can actually see and use.</em>
+          </p>
+          <p class="hero-tagline">Not a course. Not a resume. A map of what you know, built from you talking about it.</p>
+        </div>
         <div class="cta-row">
-          <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
-            Start The Spine — $1,997
+          <a class="btn" href="https://buy.stripe.com/cNibJ1dRN27Z1ho6zOfbq0m">
+            Start The Spine — $997
             <span class="arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
             </span>
@@ -487,123 +560,82 @@
     </div>
   </section>
 
-  <!-- THE PROBLEM -->
+  <!-- WHO THIS IS FOR -->
   <section class="container">
     <div class="divider">
-      <span class="label"><span class="num">§ I.</span> The Problem</span>
+      <span class="label"><span class="num">§ I.</span> Who This Is For</span>
       <span class="line"></span>
-      <span class="small">It's there · it's never had anywhere to go</span>
+      <span class="small">You stopped noticing how much you know</span>
     </div>
   </section>
 
-  <section class="container statement reveal">
-    <p class="statement-kicker">If you've spent your life knowing more than you've ever been able to lay out in order — this is for you.</p>
-    <div class="statement-body">
-      <h2 class="statement-lead">Most people carrying real expertise have never been asked the right way to <em>get it out.</em></h2>
-      <p>It doesn't come out in a form. It doesn't come out when you sit down to "write it all up." It comes out when you talk — when someone who knows how to listen follows the thread you didn't know you were pulling.</p>
-      <p>If you've spent your life knowing more than you've ever been able to lay out in order, this is for you. The knowledge is there. It's never had anywhere to go.</p>
-    </div>
-  </section>
-
-  <!-- WHAT YOU GET -->
-  <section class="container">
-    <div class="divider">
-      <span class="label"><span class="num">§ II.</span> What You Get</span>
-      <span class="line"></span>
-      <span class="small">A map · a written layer · yours to keep</span>
-    </div>
-  </section>
-
-  <section class="band">
-    <div class="container">
-      <div class="band-intro reveal">
-        <h2 class="band-heading">The shape of what you know — <em>drawn for the first time.</em></h2>
-        <p class="band-blurb">Two layers, built from a single intake and delivered as one piece: the map you can move through, and the throughline that ties it together.</p>
-      </div>
-
-      <ol class="items reveal">
-        <li class="item">
-          <span class="num">01</span>
-          <div>
-            <h3 class="title">An interactive <em>map</em></h3>
-            <p class="desc">An interactive map of your own knowledge — the whole thing laid out visually, the way your mind actually holds it, so you can see the shape of what you know for the first time.</p>
-          </div>
-          <span class="tagword">The whole thing</span>
-        </li>
-        <li class="item">
-          <span class="num">02</span>
-          <div>
-            <h3 class="title">A written <em>throughline</em></h3>
-            <p class="desc">Alongside it, a short written layer that traces the throughline connecting it all — the one you couldn't see yourself because you were standing inside it.</p>
-          </div>
-          <span class="tagword">The connection</span>
-        </li>
-        <li class="item">
-          <span class="num">03</span>
-          <div>
-            <h3 class="title">Yours to <em>keep</em></h3>
-            <p class="desc">Delivered so it's yours to keep, revisit and add to.</p>
-          </div>
-          <span class="tagword">Built to grow</span>
-        </li>
-      </ol>
-    </div>
+  <section class="container whofor reveal">
+    <ul>
+      <li>You've been doing this — whatever "this" is for you — long enough that you stopped noticing how much you know</li>
+      <li>You've tried to write it down before and hit a wall. The knowledge was never the problem. Getting it into some kind of order was</li>
+      <li>Your work doesn't sit in one straight line — different chapters, different jobs, or one deep thing nobody around you has ever fully seen the value of</li>
+      <li>You want this to turn into income eventually, but you're not chasing a side hustle. You're claiming something that's already yours</li>
+      <li>Talking works better for you than writing. You'd rather explain something out loud than stare at a blank page</li>
+    </ul>
+    <figure class="figure">
+      <img src="Natural-ability-node.png" alt="A node opened out in a real Body of Knowledge map" />
+      <figcaption>From a real map · a node opened out</figcaption>
+    </figure>
   </section>
 
   <!-- HOW IT WORKS -->
   <section class="container">
     <div class="divider">
-      <span class="label"><span class="num">§ III.</span> How It Works</span>
+      <span class="label"><span class="num">§ II.</span> How It Works</span>
       <span class="line"></span>
-      <span class="small">No call · no performance · no getting it perfect</span>
+      <span class="small">You talk · I build the map</span>
     </div>
   </section>
 
-  <section class="container">
-    <ol class="items reveal" style="margin-bottom:5rem;">
-      <li class="item">
-        <span class="num">01</span>
-        <div>
-          <h3 class="title">You <em>talk</em>, or you write</h3>
-          <p class="desc">You talk, or you write — your choice, and you can switch between them. Most people talk, because talking surfaces things writing never does.</p>
-        </div>
-        <span class="tagword">Your choice</span>
-      </li>
-      <li class="item">
-        <span class="num">02</span>
-        <div>
-          <h3 class="title">A small set of <em>prompts</em></h3>
-          <p class="desc">You get a small set of prompts so it isn't "ramble at your phone." You record on your own time, in one sitting or in pieces. No call. No performance. No getting it perfect.</p>
-        </div>
-        <span class="tagword">On your time</span>
-      </li>
-      <li class="item">
-        <span class="num">03</span>
-        <div>
-          <h3 class="title">Then it gets <em>mapped</em></h3>
-          <p class="desc">Then it gets mapped — and handed back.</p>
-        </div>
-        <span class="tagword">Handed back</span>
-      </li>
-    </ol>
+  <section class="container statement reveal">
+    <p class="statement-kicker">No live call. No one watching you work. Say it in your own words, whenever you've got twenty minutes.</p>
+    <div class="statement-body">
+      <h2 class="statement-lead">You talk. <em>I build the map.</em></h2>
+      <p>You record yourself talking through what you know — one sitting or several, however it comes out. No live call, no one watching you work. Say it in your own words, whenever you've got twenty minutes.</p>
+      <p>Prefer writing instead? That works too — your choice.</p>
+      <p>Before anything gets built, I go through what you've shared and check it's complete. If something's missing, you'll get one quick question from me, not a full do-over.</p>
+      <p>From there I build your Body of Knowledge map: an interactive visual you can click through, laid out the way you actually think instead of forced into a straight-line outline. Nothing gets flattened to fit a template.</p>
+      <p>I build every map using Claude Code, then go through it myself and shape it before it's finished. Nothing goes out that I haven't personally reviewed.</p>
+      <p>Claude isn't having a generic conversation with you. It's working from a process I built specifically for this — refined from going through it myself first — so it actually pulls out what matters instead of small talk.</p>
+    </div>
   </section>
 
-  <!-- SEE A REAL MAP -->
+  <!-- THE RETURN -->
   <section class="container">
     <div class="divider">
-      <span class="label"><span class="num">§ IV.</span> See A Real Map</span>
+      <span class="label"><span class="num">§ III.</span> The Return</span>
       <span class="line"></span>
-      <span class="small">The deliverable · not a mockup</span>
+      <span class="small">Worth more than the map on its own</span>
     </div>
   </section>
 
-  <section class="container demo reveal">
-    <div class="demo-copy">
-      <h2 class="demo-lead">This is a real one.</h2>
-      <p>This is a real one, built from a real intake — a full example of The Full Map, so you can see how deep this goes. Open it, click into it, see where it goes.</p>
-      <p>Every map starts with a question most people have never said out loud. Mine, for this one, was: <em>after decades of touring, performing in venues large and small, and hands-on live work — what do I actually know about live production and performance?</em></p>
-      <p>I built the first version of this on myself. Thirty years of scattered stage work and training turned into a map I could finally see — some of it I already knew, some of it I didn't have language for until it was laid out, and some of it surfaced days later: <em>jewels sitting in the back of a cabinet</em> I'd forgotten were there.</p>
-      <p>What you get with The Spine depends on what you bring to the audio. Some people cover a lot of ground in one round and get a map nearly this rich. Others need Tier 2's follow-up round to go deeper. Either way, this is the shape of the thing — not a mockup.</p>
+  <section class="container statement reveal">
+    <p class="statement-kicker">A piece you'd forgotten mattered. A thread you never had language for.</p>
+    <div class="statement-body">
+      <h2 class="statement-lead">Most people don't expect <em>what actually happens.</em></h2>
+      <p>Most people don't expect what actually happens: seeing it all laid out in one place makes something click. A piece you'd forgotten mattered. A thread you never had language for. That's usually worth more than the map on its own.</p>
+      <p>That single idea, or the words you finally have for something you'd never quite named, can easily be worth more than what you paid for the whole map.</p>
+    </div>
+  </section>
+
+  <!-- WHY I BUILT THIS -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ IV.</span> Why I Built This</span>
+      <span class="line"></span>
+      <span class="small">I built my own map first</span>
+    </div>
+  </section>
+
+  <section class="container built reveal">
+    <div>
+      <p>I built my own map before I built this for anyone else. Mine is called <em>Live Performance</em> — decades of touring and playing bass, from a run with Klymaxx to a last-minute tour with a cumbia band where I learned the songs from charts in one rehearsal and played the whole first show in a language I didn't understand.</p>
+      <p>Seeing it laid out made something click I'd never put into words before: what keeps me from losing my place on stage isn't one skill, it's four or five backing each other up at once — drummer feel, reading body language, knowing the song structure, muscle memory. I'd relied on that redundancy my whole career without ever naming it that way.</p>
       <a class="btn" href="live-performance-demo_final.html">
         Open the real map
         <span class="arrow" aria-hidden="true">
@@ -611,70 +643,61 @@
         </span>
       </a>
     </div>
-    <a class="demo-card" href="live-performance-demo_final.html" aria-label="Open the real map">
-      <div class="demo-window">
-        <div class="demo-topbar">
-          <span class="d"></span><span class="d"></span><span class="d"></span>
-          <span class="cap">Live Performance — Intake Map</span>
-        </div>
-        <svg class="demo-svg" viewBox="0 0 360 300" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-          <!-- trunk -->
-          <path class="trunk" d="M60 150 H120" />
-          <!-- branches -->
-          <path class="branch" d="M120 150 C150 150 150 60 185 60" />
-          <path class="branch" d="M120 150 C150 150 150 110 185 110" />
-          <path class="branch" d="M120 150 C150 150 150 150 185 150" />
-          <path class="branch" d="M120 150 C150 150 150 195 185 195" />
-          <path class="branch" d="M120 150 C150 150 150 245 185 245" />
-          <!-- sub-branches -->
-          <path class="branch" d="M245 60 C270 60 270 40 295 40" />
-          <path class="branch" d="M245 60 C270 60 270 78 295 78" />
-          <path class="branch" d="M245 150 C270 150 270 132 295 132" />
-          <path class="branch" d="M245 150 C270 150 270 168 295 168" />
-          <path class="branch" d="M245 245 C270 245 270 262 295 262" />
-          <!-- root node -->
-          <circle class="node-root" cx="60" cy="150" r="9" />
-          <!-- level 1 nodes with label bars -->
-          <g>
-            <circle class="node" cx="185" cy="60" r="6" /><rect class="bar" x="197" y="56" width="42" height="7" rx="3.5" />
-            <circle class="node node-hot" cx="185" cy="110" r="6" /><rect class="bar" x="197" y="106" width="54" height="7" rx="3.5" />
-            <circle class="node" cx="185" cy="150" r="6" /><rect class="bar" x="197" y="146" width="36" height="7" rx="3.5" />
-            <circle class="node" cx="185" cy="195" r="6" /><rect class="bar" x="197" y="191" width="48" height="7" rx="3.5" />
-            <circle class="node" cx="185" cy="245" r="6" /><rect class="bar" x="197" y="241" width="40" height="7" rx="3.5" />
-          </g>
-          <!-- level 2 label bars -->
-          <g>
-            <rect class="bar-lead" x="300" y="37" width="34" height="6" rx="3" />
-            <rect class="bar-lead" x="300" y="75" width="28" height="6" rx="3" />
-            <rect class="bar-lead" x="300" y="129" width="40" height="6" rx="3" />
-            <rect class="bar-lead" x="300" y="165" width="30" height="6" rx="3" />
-            <rect class="bar-lead" x="300" y="259" width="36" height="6" rx="3" />
-          </g>
-        </svg>
-      </div>
-    </a>
+    <div class="built-media">
+      <figure class="figure">
+        <video autoplay loop muted playsinline src="demo-bok-map.mp4"></video>
+        <figcaption>Live Performance · the map in motion</figcaption>
+      </figure>
+      <figure class="figure">
+        <img src="Redundancy-node.png" alt="The redundancy node in context, from the Live Performance map" />
+        <figcaption>The redundancy node · in context</figcaption>
+      </figure>
+    </div>
   </section>
 
-  <!-- PRICING -->
+  <!-- QUESTIONS BEFORE YOU BUY -->
   <section class="container">
     <div class="divider">
-      <span class="label"><span class="num">§ V.</span> The Offer</span>
+      <span class="label"><span class="num">§ V.</span> Questions Before You Buy</span>
       <span class="line"></span>
-      <span class="small">Start with The Spine</span>
+      <span class="small">The two that come up most</span>
+    </div>
+  </section>
+
+  <section class="container reveal">
+    <dl class="qa">
+      <dt>What if I don't know what to say?</dt>
+      <dd>You don't need a thesis. You get a few starting prompts, and "I don't know where to begin" is a perfectly good first sentence.</dd>
+      <dt>Is this for me if my career doesn't look like one thing?</dt>
+      <dd>That's exactly who The Full Map with the career interview is built for. See Tier 2B below.</dd>
+    </dl>
+  </section>
+
+  <!-- THE TIERS -->
+  <section class="container">
+    <div class="divider">
+      <span class="label"><span class="num">§ VI.</span> The Tiers</span>
+      <span class="line"></span>
+      <span class="small">Three tiers · pick the one that fits</span>
     </div>
   </section>
 
   <section class="container pricing">
     <div class="pricing-grid reveal">
       <div class="plan plan-spine">
-        <div class="plan-eyebrow"><span class="badge">Available now</span> One-time</div>
+        <div class="plan-eyebrow"><span class="badge">Tier 1</span></div>
         <h3 class="plan-name">The Spine</h3>
-        <p class="plan-price"><span class="currency">$</span>1,997<span class="once">once</span></p>
-        <p class="plan-desc">One intake, mapped and delivered. The full interactive map plus the written layer. This is the whole thing, start to finish. (The demo above is a Full Map example — The Spine's depth depends on what you bring to the audio.)</p>
+        <p class="plan-price"><span class="currency">$</span>997<span class="once">once</span></p>
+        <p class="plan-desc">You already know this material. What you don't have is a way to hand it to anyone — including yourself — that shows the whole shape of it at once. The Spine takes one clear area of what you know and turns it into a map you can actually use, laid out the way you think about it, not squeezed into an outline.</p>
+        <ul class="plan-list">
+          <li>Talk it out or write it out, your choice</li>
+          <li>Résumé optional but recommended</li>
+          <li>One round, reviewed closely before the map gets built</li>
+          <li>Your interactive map plus a short written layer, delivered in 7–10 business days</li>
+        </ul>
         <div class="plan-cta">
-          <span class="micro" style="display:block; margin-bottom:0.75rem;">Delivered within 7–10 business days.</span>
-          <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
-            Start The Spine — $1,997
+          <a class="btn" href="https://buy.stripe.com/cNibJ1dRN27Z1ho6zOfbq0m">
+            Start The Spine — $997
             <span class="arrow" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
             </span>
@@ -683,49 +706,23 @@
       </div>
 
       <div class="plan plan-full">
-        <div class="plan-eyebrow"><span class="badge badge-soon">Opening soon</span></div>
+        <div class="plan-eyebrow"><span class="badge">Tier 2A · Coming soon</span></div>
         <h3 class="plan-name">The Full Map</h3>
-        <p class="plan-desc">Everything in The Spine, plus a follow-up round to go deeper and an optional addition after delivery. For knowledge too wide or too deep for a single pass.</p>
-        <p class="full-note">— Not yet available —</p>
+        <p class="plan-price"><span class="currency">$</span>3,500</p>
+        <p class="plan-desc">Some knowledge doesn't come out in one sitting — it needs someone asking the next question. The Full Map goes deeper than The Spine, with a real interview and a follow-up round built in.</p>
+        <div class="plan-cta">
+          <span class="btn btn-disabled" aria-disabled="true">Coming soon</span>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <!-- WHY IT'S WORTH IT -->
-  <section class="container">
-    <div class="divider">
-      <span class="label"><span class="num">§ VI.</span> The Return</span>
-      <span class="line"></span>
-      <span class="small">That's not the bonus · that's the point</span>
-    </div>
-  </section>
-
-  <section class="container statement reveal">
-    <p class="statement-kicker">One idea you finally act on. One offer you can finally name. One piece of knowledge you can finally put to use.</p>
-    <div class="statement-body">
-      <h2 class="statement-lead">You're sitting on more than one thing of <em>real value.</em></h2>
-      <p>You're sitting on more than one thing of real value. One idea you finally act on, one offer you can finally name, one piece of knowledge you can finally put to use — and the map has already paid for itself. That's not the bonus. That's the point.</p>
-      <p>There's another kind of value too, harder to predict but common. Something about telling the story out loud, then watching it laid out in front of you, tends to shake something loose — a connection you hadn't made, a memory you'd filed away, an idea that had nowhere to attach until now. Not guaranteed. But for most people, saying it and then seeing it changes something.</p>
-    </div>
-  </section>
-
-  <!-- CLOSING / REASSURANCE -->
-  <section class="closing">
-    <div class="closing-inner">
-      <div>
-        <span class="closing-kicker">The honest version</span>
-        <h2 class="closing-headline">It'll show you what you already know, in a shape you've <em>never been able to see.</em></h2>
-        <p>You won't have seen your map before it's built — no one has. So here's the honest version: it's built from your own words, in your own order. It won't tell you things you don't know.</p>
-      </div>
-      <div class="closing-side">
-        <span class="micro"><b>The Spine</b> · $1,997 · one intake, start to finish</span>
-        <a class="btn" href="https://buy.stripe.com/6oU00j7tp13V8JQ0bqfbq0i">
-          Start The Spine — $1,997
-          <span class="arrow" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M13 5l7 7-7 7"/></svg>
-          </span>
-        </a>
-        <span class="micro">Or <a href="live-performance-demo_final.html" style="text-decoration:underline; text-underline-offset:3px;">see a real map</a> first.</span>
+      <div class="plan plan-full">
+        <div class="plan-eyebrow"><span class="badge">Tier 2B · Coming soon</span></div>
+        <h3 class="plan-name">The Full Map + Career Interview</h3>
+        <p class="plan-price"><span class="currency">$</span>4,500</p>
+        <p class="plan-desc">For a career that doesn't read as one thing. This tier maps your expertise and your career history together, so the thread connecting your different chapters gets found instead of flattened.</p>
+        <div class="plan-cta">
+          <span class="btn btn-disabled" aria-disabled="true">Coming soon</span>
+        </div>
       </div>
     </div>
   </section>
